@@ -3,27 +3,28 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace gcgcg
 {
-    internal class Circulo : Objeto
+  internal class Circulo : Objeto
+  {
+    public Circulo(Objeto _paiRef, ref char _rotulo, double _raio) : this(_paiRef, ref _rotulo, _raio, new Ponto4D())
     {
-        public Circulo(Objeto _paiRef, ref char _rotulo) : this(_paiRef, ref _rotulo, new Ponto4D(0.5, 0.5))
-        {
 
-        }
+    }
 
-        public Circulo(Objeto _paiRef, ref char _rotulo, Ponto4D ptoSupDir) : base(_paiRef, ref _rotulo)
-        {
-            PrimitivaTipo = PrimitiveType.Points;
-            PrimitivaTamanho = 70;
+    public Circulo(Objeto _paiRef, ref char _rotulo, double _raio, Ponto4D ptoDeslocamento) : base(_paiRef, ref _rotulo)
+    {
+      PrimitivaTamanho = 5;
 
-            base.PontosAdicionar(ptoSupDir);
-            base.PontosAdicionar(new Ponto4D(ptoSupDir.X, ptoSupDir.Y));
-            Atualizar();
-        }
+      for (int i = 0; i <= 360; i+=5)
+      {
+        Ponto4D ponto = Matematica.GerarPtosCirculo(i, _raio);
+        base.PontosAdicionar(ponto);
+      }
+    }
 
-        private void Atualizar()
-        {
-            base.ObjetoAtualizar();
-        }
+    private void Atualizar(Ponto4D ptoDeslocamento)
+    {
+      base.ObjetoAtualizar();
+    }
 
 #if CG_Debug
     public override string ToString()

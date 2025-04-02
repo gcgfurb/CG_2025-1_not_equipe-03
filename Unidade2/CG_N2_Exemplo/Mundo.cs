@@ -62,7 +62,7 @@ namespace gcgcg
       Console.WriteLine("Tamanho interno da janela de desenho: " + ClientSize.X + "x" + ClientSize.Y);
 #endif
 
-      GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+      GL.ClearColor(0.5019f, 0.5019f, 0.6980f, 1.0f);
 
       #region Cores
       _shaderVermelha = new Shader("Shaders/shader.vert", "Shaders/shaderVermelha.frag");
@@ -84,62 +84,12 @@ namespace gcgcg
 
       stopwatch.Start();
 #endif
-
-      #region Objeto: polígono qualquer, só para testes e ajudar no desenvolvimento  
-      List<Ponto4D> pontosPoligonoBandeiraA =
-      [
-        new Ponto4D(0.25, 0.25),
-        new Ponto4D(0.75, 0.25),
-        new Ponto4D(0.75, 0.75),
-        new Ponto4D(0.50, 0.50),
-        new Ponto4D(0.25, 0.75),
-      ];
-      objetoSelecionado = new Poligono(mundo, ref rotuloAtual, pontosPoligonoBandeiraA);
-      #endregion
-      #region NÃO USAR: declara um objeto filho ao polígono
-      objetoSelecionado = new Ponto(objetoSelecionado, ref rotuloAtual, new Ponto4D(0.50, 0.75));
-      #endregion
-      #region Objeto: retângulo  
-      objetoSelecionado = new Retangulo(mundo, ref rotuloAtual, new Ponto4D(-0.25, 0.25), new Ponto4D(-0.75, 0.75))
+      #region Objeto: Círculo 
+      objetoSelecionado = new Circulo(mundo, ref rotuloAtual, 0.5)
       {
-        PrimitivaTipo = PrimitiveType.LineLoop
+        PrimitivaTipo = PrimitiveType.Points
       };
       #endregion
-      #region Objeto: segmento de reta  
-      objetoSelecionado = new SegReta(mundo, ref rotuloAtual, new Ponto4D(-0.25, -0.25), new Ponto4D(-0.75, -0.75));
-      #endregion
-      #region Objeto: ponto  
-      objetoSelecionado = new Ponto(mundo, ref rotuloAtual, new Ponto4D(0.25, -0.25))
-      {
-        PrimitivaTipo = PrimitiveType.Points,
-        PrimitivaTamanho = 10
-      };
-      #endregion
-
-#if CG_Privado
-      #region Objeto: circulo - origem
-      objetoSelecionado = new Circulo(mundo, ref rotuloAtual, 0.2)
-      {
-        ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderAmarela.frag")
-      };
-      #endregion
-      #region Objeto: circulo
-      objetoSelecionado = new Circulo(mundo, ref rotuloAtual, 0.1, new Ponto4D(0.0, -0.5))
-      {
-        ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderAmarela.frag")
-      };
-      #endregion
-      #region Objeto: SrPalito  
-      objetoSelecionado = new SrPalito(mundo, ref rotuloAtual);
-      #endregion
-      #region Objeto: SplineBezier
-      objetoSelecionado = new SplineBezier(mundo, ref rotuloAtual);
-      #endregion
-      #region Objeto: SplineInter
-      objetoSelecionado = new SplineInter(mundo, ref rotuloAtual);
-      #endregion
-#endif
-
     }
 
     protected override void OnRenderFrame(FrameEventArgs e)
