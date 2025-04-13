@@ -14,10 +14,10 @@ namespace gcgcg
         {
             PrimitivaTipo = PrimitiveType.Lines;
             PrimitivaTamanho = 2;
-            AtualizarFrames();
+            Atualizar();
         }
 
-        public void AtualizarFrames()
+        public void Atualizar()
         {
             // toda vez é necessário limpar para renderizar o quadro atualizado
             pontosLista.Clear();
@@ -33,37 +33,37 @@ namespace gcgcg
 
         public void diminuirPosicaoX() {
             posicaoX = posicaoX - 0.1;
-            AtualizarFrames();
+            Atualizar();
         }
 
         public void aumentarPosicaoX()
         {
             posicaoX = posicaoX + 0.1;
-            AtualizarFrames();
+            Atualizar();
         }
 
         public void diminuirRaio()
         {
             raio = raio - 0.1;
-            AtualizarFrames();
+            Atualizar();
         }
 
         public void aumentarRaio()
         {
             raio = raio + 0.1;
-            AtualizarFrames();
+            Atualizar();
         }
 
         public void diminuirAngulo()
         {
-            angulo = angulo - 1;
-            AtualizarFrames();
+            angulo = angulo - 10;
+            Atualizar();
         }
 
         public void aumentarAngulo()
         {
-            angulo = angulo + 1;
-            AtualizarFrames();
+            angulo = angulo + 10;
+            Atualizar();
         }
 
 #if CG_Debug

@@ -137,9 +137,34 @@ namespace gcgcg
           Console.WriteLine("objetoSelecionado: MUNDO \n__________________________________\n");
       }
 
-      if (estadoTeclado.IsKeyPressed(Keys.C) && objetoSelecionado != null)
+      if (estadoTeclado.IsKeyPressed(Keys.Q) && objetoSelecionado != null)
       {
-        objetoSelecionado.ShaderObjeto = _shaderCiano;
+        srPalito.diminuirPosicaoX();
+      }
+
+      if (estadoTeclado.IsKeyPressed(Keys.W) && objetoSelecionado != null)
+      {
+        srPalito.aumentarPosicaoX();
+      }
+
+      if (estadoTeclado.IsKeyPressed(Keys.A) && objetoSelecionado != null)
+      {
+        srPalito.diminuirRaio();
+      }
+
+      if (estadoTeclado.IsKeyPressed(Keys.S) && objetoSelecionado != null)
+      {
+        srPalito.aumentarRaio();
+      }
+
+      if (estadoTeclado.IsKeyPressed(Keys.X) && objetoSelecionado != null)
+      {
+        srPalito.aumentarAngulo();
+      }
+
+      if (estadoTeclado.IsKeyPressed(Keys.Z) && objetoSelecionado != null)
+      {
+        srPalito.diminuirAngulo();
       }
 
       if (estadoTeclado.IsKeyPressed(Keys.Right) && objetoSelecionado != null)
