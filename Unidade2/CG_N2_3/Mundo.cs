@@ -23,11 +23,8 @@ namespace gcgcg
     private Dictionary<char, Objeto> grafoLista = [];
     private Objeto objetoSelecionado = null;
     private Transformacao4D matrizGrafo = new();
-    private Circulo circuloMaior;
-    private Circulo circuloMenor;
-    private Retangulo box;
-    private Ponto pontoCentral;
-    private BBox bbox;
+
+    private SrPalito srPalito;
 
 #if CG_Gizmo
     private readonly float[] _sruEixos =
@@ -89,30 +86,8 @@ namespace gcgcg
 
       stopwatch.Start();
 #endif
-      #region Joystick virtual  
-            pontoCentral = new Ponto(mundo, ref rotuloAtual, new Ponto4D(0.2, 0.2)) {
-                PrimitivaTamanho = 3,
-                ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderCiano.frag")
-            };
-
-            Ponto4D ptoDeslocamento = new Ponto4D(0.2, 0.2);
-            circuloMaior = new Circulo(mundo, ref rotuloAtual, 0.2, ptoDeslocamento) {
-                ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderAmarela.frag")
-            };
-
-            circuloMenor = new Circulo(mundo, ref rotuloAtual, 0.05, ptoDeslocamento) {
-                ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderBranca.frag")
-            };
-
-            box = new Retangulo(mundo, ref rotuloAtual, circuloMaior.PontosId(9), circuloMaior.PontosId(45)) {
-                PrimitivaTipo = PrimitiveType.LineLoop,
-                ShaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag")
-            };
-
-            //adicionando um BBox no tamanho do quadrado
-            List<Ponto4D> listaBBox = new List<Ponto4D> {circuloMaior.PontosId(9), circuloMaior.PontosId(45)};
-            bbox = new BBox();
-            bbox.Atualizar(new Transformacao4D(), listaBBox);
+      #region Objeto: SrPalito  
+            srPalito = new SrPalito(mundo, rotuloAtual);
       #endregion
     }
 
@@ -149,24 +124,62 @@ namespace gcgcg
         Close();
 
       #region Funções de apoio para o desenvolvimento. Não é do enunciado  
-      if (estadoTeclado.IsKeyPressed(Keys.C) || estadoTeclado.IsKeyPressed(Keys.W))
+      if (estadoTeclado.IsKeyPressed(Keys.Space))
+        objetoSelecionado = Grafocena.GrafoCenaProximo(mundo, objetoSelecionado, grafoLista);
+
+      if (estadoTeclado.IsKeyPressed(Keys.F))
+        Grafocena.GrafoCenaImprimir(mundo, grafoLista);
+      if (estadoTeclado.IsKeyPressed(Keys.T))
       {
-        moverPrincipal(0, 0.01);
+        if (objetoSelecionado != null)
+          Console.WriteLine(objetoSelecionado);
+        else
+          Console.WriteLine("objetoSelecionado: MUNDO \n__________________________________\n");
       }
 
-      if (estadoTeclado.IsKeyPressed(Keys.B) || estadoTeclado.IsKeyPressed(Keys.S))
+      if (estadoTeclado.IsKeyPressed(Keys.Q) && objetoSelecionado != null)
       {
-        moverPrincipal(0, -0.01);
+        srPalito.AtualizarPe(-0.1);
       }
 
-      if (estadoTeclado.IsKeyPressed(Keys.E) || estadoTeclado.IsKeyPressed(Keys.A))
+      if (estadoTeclado.IsKeyPressed(Keys.W) && objetoSelecionado != null)
       {
-        moverPrincipal(-0.01, 0);
+        srPalito.AtualizarPe(0.1);
       }
 
-      if (estadoTeclado.IsKeyPressed(Keys.D) || estadoTeclado.IsKeyPressed(Keys.D))
+      if (estadoTeclado.IsKeyPressed(Keys.A) && objetoSelecionado != null)
       {
-        moverPrincipal(0.01, 0);
+        srPalito.AtualizarRaio(-0.1);
+      }
+
+      if (estadoTeclado.IsKeyPressed(Keys.S) && objetoSelecionado != null)
+      {
+        srPalito.AtualizarRaio(0.1);
+      }
+
+      if (estadoTeclado.IsKeyPressed(Keys.X) && objetoSelecionado != null)
+      {
+        srPalito.AtualizarAngulo(-10);
+      }
+
+      if (estadoTeclado.IsKeyPressed(Keys.Z) && objetoSelecionado != null)
+      {
+        srPalito.AtualizarAngulo(10);
+      }
+
+      if (estadoTeclado.IsKeyPressed(Keys.Right) && objetoSelecionado != null)
+      {
+        if (objetoSelecionado.PontosListaTamanho > 0)
+        {
+          objetoSelecionado.PontosAlterar(new Ponto4D(objetoSelecionado.PontosId(0).X + 0.005, objetoSelecionado.PontosId(0).Y, 0), 0);
+          objetoSelecionado.ObjetoAtualizar();
+        }
+      }
+
+      if (estadoTeclado.IsKeyPressed(Keys.R) && objetoSelecionado != null)
+      {
+        //FIXME: Spline limpa os pontos da Spline, mas não limpa pontos e poliedro de controle 
+        objetoSelecionado.PontosApagar();
       }
       #endregion
       #endregion
@@ -202,26 +215,6 @@ namespace gcgcg
 
       #endregion
     }
-
-    private void moverPrincipal(double deslocX, double deslocY) {      
-      Ponto4D aux = new Ponto4D(pontoCentral.PontosId(0).X + deslocX,  pontoCentral.PontosId(0).Y + deslocY);     
-
-      // 0.04 é o quadrado da distância máxima permitida entre os centros dos dois círculos = 0,2 x 0,2
-      if (circuloMaior.Bbox().Dentro(aux) && Matematica.DistanciaQuadrado(aux, new Ponto4D(0.2, 0.2)) < 0.04)
-      {
-          //atualiza o ponto principal
-          pontoCentral.PontosId(0).X += deslocX;
-          pontoCentral.PontosId(0).Y += deslocY;
-          pontoCentral.Atualizar();
-
-          //gera os pontos do circulo menor novamente
-          Ponto4D ptoDeslocamento = new Ponto4D(deslocX, deslocY);
-          circuloMenor.Atualizar(ptoDeslocamento);
-          
-          //valida se ainda está dentro do quadrado
-          box.PrimitivaTipo = bbox.Dentro(pontoCentral.PontosId(0)) ?  PrimitiveType.LineLoop : PrimitiveType.Points;      
-      }
-  }
 
     protected override void OnResize(ResizeEventArgs e)
     {
