@@ -24,6 +24,8 @@ namespace gcgcg
     private Objeto objetoSelecionado = null;
     private Transformacao4D matrizGrafo = new();
 
+    private SrPalito srPalito;
+
 #if CG_Gizmo
     private readonly float[] _sruEixos =
     [
@@ -84,11 +86,8 @@ namespace gcgcg
 
       stopwatch.Start();
 #endif
-      #region Objeto: Círculo 
-      objetoSelecionado = new Circulo(mundo, ref rotuloAtual, 0.5)
-      {
-        PrimitivaTipo = PrimitiveType.Points
-      };
+      #region Objeto: SrPalito  
+            srPalito = new SrPalito(mundo, rotuloAtual);
       #endregion
     }
 
