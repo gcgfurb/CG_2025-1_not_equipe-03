@@ -286,7 +286,7 @@ namespace gcgcg
 
         if (objetoNovo == null)
         {
-          objetoNovo = new Poligono(mundo, ref rotuloAtual, new List<Ponto4D>());
+          objetoNovo = objetoSelecionado == null ? new Poligono(mundo, ref rotuloAtual, new List<Ponto4D>()) : new Poligono(objetoSelecionado, ref rotuloAtual, new List<Ponto4D>());
           objetoNovo.PontosAdicionar(sruPonto);
           objetoNovo.ObjetoAtualizar();
         }
