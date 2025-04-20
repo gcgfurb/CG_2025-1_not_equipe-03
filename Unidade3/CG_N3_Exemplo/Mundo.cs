@@ -222,11 +222,11 @@ namespace gcgcg
       // ## 8. Interação: cores
       // Utilize o teclado (teclas R=vermelho,G=verde,B=azul) para trocar as cores dos polígonos selecionado.  
       if (estadoTeclado.IsKeyPressed(Keys.R) && objetoSelecionado != null)  // R=vermelho
-        Console.WriteLine("## 8. Interação: cores - vermelho - Tecla R");
+        objetoSelecionado.ShaderObjeto = _shaderVermelha;
       if (estadoTeclado.IsKeyPressed(Keys.G) && objetoSelecionado != null)  // G=verde
-        Console.WriteLine("## 8. Interação: cores - verde - Tecla G");
+        objetoSelecionado.ShaderObjeto = _shaderVerde;
       if (estadoTeclado.IsKeyPressed(Keys.B) && objetoSelecionado != null)  // B=azul
-        Console.WriteLine("## 8. Interação: cores - azul - Tecla B");
+        objetoSelecionado.ShaderObjeto = _shaderAzul;
 
       // ## 10. Transformações Geométricas: translação
       // Utilizando as teclas das setas direcionais (cima/baixo,direita,esquerda) movimente o polígono selecionado.  
