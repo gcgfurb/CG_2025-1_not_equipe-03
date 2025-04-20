@@ -25,6 +25,10 @@ namespace gcgcg
     private Objeto objetoNovo = null;
     private Transformacao4D matrizGrafo = new();
 
+    //CRIADOS POR NOS
+    private Ponto4D sruPonto = null;
+    private List<Poligono> poligonos = [];
+
 #if CG_Gizmo
     private readonly float[] _sruEixos =
     [
@@ -99,6 +103,7 @@ namespace gcgcg
         new Ponto4D(0.25, 0.75),
       ];
       objetoSelecionado = new Poligono(mundo, ref rotuloAtual, pontosPoligonoBandeiraA);
+      poligonos.Add((Poligono)objetoSelecionado);
       #endregion
 
       List<Ponto4D> teste =
@@ -109,6 +114,7 @@ namespace gcgcg
         new Ponto4D(0.0, 0.2),
       ];
       objetoSelecionado = new Poligono(objetoSelecionado, ref rotuloAtual, teste);
+      poligonos.Add((Poligono)objetoSelecionado);
 
       #region Objeto: polígono qualquer, só para testes e ajudar no desenvolvimento  
       List<Ponto4D> pontosPoligonoBandeiraB =
@@ -120,6 +126,7 @@ namespace gcgcg
         new Ponto4D(-0.25, -0.75),
       ];
       objetoSelecionado = new Poligono(mundo, ref rotuloAtual, pontosPoligonoBandeiraB);
+      poligonos.Add((Poligono)objetoSelecionado);
       #endregion
 
       // objetoSelecionado = null;
@@ -189,6 +196,8 @@ namespace gcgcg
       if (estadoTeclado.IsKeyPressed(Keys.Enter))
       {
         Console.WriteLine("## 2. Estrutura de dados: polígono - Enter");
+        objetoSelecionado = objetoNovo;
+        objetoNovo = null;
       }
 
       // ## 3. Estrutura de dados: polígono
@@ -269,10 +278,24 @@ namespace gcgcg
       if (MouseState.IsButtonPressed(MouseButton.Right))
       {
         Console.WriteLine("MouseState.IsButtonDown(MouseButton.Right)");
+        sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
       }
       if (MouseState.IsButtonReleased(MouseButton.Right))
       {
         Console.WriteLine("MouseState.IsButtonReleased(MouseButton.Right)");
+
+        if (objetoNovo == null)
+        {
+          objetoNovo = new Poligono(mundo, ref rotuloAtual, new List<Ponto4D>());
+          objetoNovo.PontosAdicionar(sruPonto);
+          objetoNovo.ObjetoAtualizar();
+        }
+        else
+        {
+          objetoNovo.PontosAdicionar(sruPonto);
+          objetoNovo.ObjetoAtualizar();
+        }
+        
       }
       // ## 6. Visualização: rastro
       // Exiba o “rasto” ao desenhar os segmentos do polígono.  
