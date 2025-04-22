@@ -294,34 +294,35 @@ namespace gcgcg
       // Utilize o mouse para clicar na tela com botão direito e poder desenhar um novo polígono.  
       if (MouseState.IsButtonPressed(MouseButton.Right))
       {
-        Console.WriteLine("MouseState.IsButtonDown(MouseButton.Right)");
-      }
-      if (MouseState.IsButtonReleased(MouseButton.Right))
-      {
-        Console.WriteLine("MouseState.IsButtonReleased(MouseButton.Right)");
+        Console.WriteLine("MouseState.IsButtonPressed(MouseButton.Right)");
         sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
 
         if (objetoNovo == null)
         {
           objetoNovo = objetoSelecionado == null ? new Poligono(mundo, ref rotuloAtual, new List<Ponto4D>()) : new Poligono(objetoSelecionado, ref rotuloAtual, new List<Ponto4D>());
           objetoNovo.PontosAdicionar(sruPonto);
+          objetoNovo.PontosAdicionar(sruPonto);
         }
-        else
+      }
+      if (MouseState.IsButtonReleased(MouseButton.Right))
+      {
+        Console.WriteLine("MouseState.IsButtonReleased(MouseButton.Right)");
+
+        if (objetoNovo != null)
         {
           objetoNovo.PontosAdicionar(sruPonto);
         }
-        
       }
       
       // ## 6. Visualização: rastro
       // Exiba o “rasto” ao desenhar os segmentos do polígono.  
       if (MouseState.IsButtonDown(MouseButton.Right))
       {
+        Console.WriteLine("MouseState.IsButtonDown(MouseButton.Right)");
         sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
-        
-        Objeto a = new Poligono(mundo, ref rotuloAtual, new List<Ponto4D>());
-        a.MatrizGlobalInversa(sruPonto);
-        a.PontosAdicionar(sruPonto);
+
+        sruPonto = objetoNovo.MatrizGlobalInversa(sruPonto);
+        objetoNovo.PontosAlterar(sruPonto, 0);
       }
 
       // ## 9. Interação: BBox
