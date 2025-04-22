@@ -205,6 +205,7 @@ namespace gcgcg
       if (estadoTeclado.IsKeyPressed(Keys.D) && objetoSelecionado != null)
       {
         Console.WriteLine("## 3. Estrutura de dados: polígono - Tecla D");
+        objetoSelecionado.ObjetoRemover();
       }
 
       // ## 4. Estrutura de dados: vértices mover
@@ -283,30 +284,29 @@ namespace gcgcg
       if (MouseState.IsButtonReleased(MouseButton.Right))
       {
         Console.WriteLine("MouseState.IsButtonReleased(MouseButton.Right)");
+        sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
 
         if (objetoNovo == null)
         {
           objetoNovo = objetoSelecionado == null ? new Poligono(mundo, ref rotuloAtual, new List<Ponto4D>()) : new Poligono(objetoSelecionado, ref rotuloAtual, new List<Ponto4D>());
           objetoNovo.PontosAdicionar(sruPonto);
-          objetoNovo.ObjetoAtualizar();
         }
         else
         {
           objetoNovo.PontosAdicionar(sruPonto);
-          objetoNovo.ObjetoAtualizar();
         }
         
       }
+      
       // ## 6. Visualização: rastro
       // Exiba o “rasto” ao desenhar os segmentos do polígono.  
       if (MouseState.IsButtonDown(MouseButton.Right))
       {
-        Ponto4D sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
-        if (objetoSelecionado != null)
-        {
-          sruPonto = objetoSelecionado.MatrizGlobalInversa(sruPonto);
-          objetoSelecionado.PontosAlterar(sruPonto, 0);
-        }
+        sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
+        
+        Objeto a = new Poligono(mundo, ref rotuloAtual, new List<Ponto4D>());
+        a.MatrizGlobalInversa(sruPonto);
+        a.PontosAdicionar(sruPonto);
       }
 
       // ## 9. Interação: BBox
