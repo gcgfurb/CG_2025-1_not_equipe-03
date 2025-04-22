@@ -213,6 +213,9 @@ namespace gcgcg
       if (estadoTeclado.IsKeyDown(Keys.V) && objetoSelecionado != null)
       {
         Console.WriteLine("## 4. Estrutura de dados: vértices mover - Tecla V");
+        sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
+        sruPonto = objetoSelecionado.MatrizGlobalInversa(sruPonto);
+        objetoSelecionado.PontosAlterar(sruPonto, objetoSelecionado.PontoMaisPerto(sruPonto, remover: false));
       }
 
       // ## 5. Estrutura de dados: vértices remover
@@ -220,6 +223,9 @@ namespace gcgcg
       if (estadoTeclado.IsKeyPressed(Keys.E) && objetoSelecionado != null)
       {
         Console.WriteLine("## 5. Estrutura de dados: vértices remover - Tecla E");
+        sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
+        sruPonto = objetoSelecionado.MatrizGlobalInversa(sruPonto);
+        objetoSelecionado.PontoMaisPerto(sruPonto);
       }
 
       // ## 7. Interação: desenho
@@ -227,6 +233,16 @@ namespace gcgcg
       if (estadoTeclado.IsKeyPressed(Keys.P) && objetoSelecionado != null)
       {
         Console.WriteLine("## 7. Interação: desenho - Tecla P");
+        if (objetoSelecionado.PrimitivaTipo == PrimitiveType.LineLoop)
+        {
+          objetoSelecionado.PrimitivaTipo = PrimitiveType.LineStrip;
+          Console.WriteLine($"Polígono '{objetoSelecionado.Rotulo}' alterado para Aberto (LineStrip).");
+        }
+        else
+        {
+          objetoSelecionado.PrimitivaTipo = PrimitiveType.LineLoop;
+          Console.WriteLine($"Polígono '{objetoSelecionado.Rotulo}' alterado para Fechado (LineLoop).");
+        }
       }
 
       // ## 8. Interação: cores
@@ -241,7 +257,7 @@ namespace gcgcg
       // ## 10. Transformações Geométricas: translação
       // Utilizando as teclas das setas direcionais (cima/baixo,direita,esquerda) movimente o polígono selecionado.  
       if (estadoTeclado.IsKeyPressed(Keys.Left) && objetoSelecionado != null)
-        Console.WriteLine("## 10. Transformações Geométricas: translação - esquerda");
+        Console.WriteLine("## 10. Transformações Geométricas: translação - esquerda"); 
       if (estadoTeclado.IsKeyPressed(Keys.Right) && objetoSelecionado != null)
         Console.WriteLine("## 10. Transformações Geométricas: translação - direita");
       if (estadoTeclado.IsKeyPressed(Keys.Up) && objetoSelecionado != null)
@@ -279,7 +295,6 @@ namespace gcgcg
       if (MouseState.IsButtonPressed(MouseButton.Right))
       {
         Console.WriteLine("MouseState.IsButtonDown(MouseButton.Right)");
-        sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
       }
       if (MouseState.IsButtonReleased(MouseButton.Right))
       {
