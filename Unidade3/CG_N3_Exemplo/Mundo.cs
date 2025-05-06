@@ -148,7 +148,7 @@ namespace gcgcg
       if (stopwatch.ElapsedMilliseconds >= 1000)
       {
         Console.WriteLine($"FPS: {frames}");
-        frames = 0; 
+        frames = 0;
         stopwatch.Restart();
       }
 #endif
@@ -197,6 +197,7 @@ namespace gcgcg
       {
         Console.WriteLine("## 2. Estrutura de dados: polígono - Enter");
         objetoSelecionado = objetoNovo;
+        poligonos.Add((Poligono)objetoSelecionado);
         objetoNovo = null;
       }
 
@@ -257,7 +258,7 @@ namespace gcgcg
       // ## 10. Transformações Geométricas: translação
       // Utilizando as teclas das setas direcionais (cima/baixo,direita,esquerda) movimente o polígono selecionado.  
       if (estadoTeclado.IsKeyPressed(Keys.Left) && objetoSelecionado != null)
-        Console.WriteLine("## 10. Transformações Geométricas: translação - esquerda"); 
+        Console.WriteLine("## 10. Transformações Geométricas: translação - esquerda");
       if (estadoTeclado.IsKeyPressed(Keys.Right) && objetoSelecionado != null)
         Console.WriteLine("## 10. Transformações Geométricas: translação - direita");
       if (estadoTeclado.IsKeyPressed(Keys.Up) && objetoSelecionado != null)
@@ -313,7 +314,7 @@ namespace gcgcg
           objetoNovo.PontosAdicionar(sruPonto);
         }
       }
-      
+
       // ## 6. Visualização: rastro
       // Exiba o “rasto” ao desenhar os segmentos do polígono.  
       if (MouseState.IsButtonDown(MouseButton.Right))
@@ -333,15 +334,34 @@ namespace gcgcg
         Console.WriteLine("MouseState.IsButtonPressed(MouseButton.Left)");
         Console.WriteLine("__ Valores do Espaço de Tela");
         Console.WriteLine("Vector2i windowSize: " + ClientSize);
-
         Console.WriteLine("Vector2 mousePosition: " + MousePosition);
 
+        // Converte coordenadas do mouse para SRU
         Ponto4D sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
-        Console.WriteLine("Vector2 mousePosition (NDC): " + MousePosition);
+        Console.WriteLine("mousePosition (SRU): " + sruPonto);
+
+        objetoSelecionado = null;
+        foreach (var poligo in poligonos)
+        {
+          if (poligo.Bbox().Dentro(sruPonto))
+          {
+            objetoSelecionado = poligo;
+            if (poligo.ScanLine(sruPonto, ref objetoSelecionado))
+            {
+              break;
+            }
+            objetoSelecionado = null;
+          }
+        }
+
         if (objetoSelecionado != null)
         {
-          sruPonto = objetoSelecionado.MatrizGlobalInversa(sruPonto);
-          Console.WriteLine("Vector2 mousePosition (Objeto): " + MousePosition);
+          Console.WriteLine("Objeto selecionado com sucesso!");
+          objetoSelecionado.Bbox().Desenhar(); // Desenha a BBox do objeto selecionado
+        }
+        else
+        {
+          Console.WriteLine("Nenhum objeto selecionado.");
         }
       }
 
