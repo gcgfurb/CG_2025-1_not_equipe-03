@@ -258,35 +258,35 @@ namespace gcgcg
       // ## 10. Transformações Geométricas: translação
       // Utilizando as teclas das setas direcionais (cima/baixo,direita,esquerda) movimente o polígono selecionado.  
       if (estadoTeclado.IsKeyPressed(Keys.Left) && objetoSelecionado != null)
-        Console.WriteLine("## 10. Transformações Geométricas: translação - esquerda");
+        objetoSelecionado.MatrizTranslacaoXYZ(-0.1,0,0);
       if (estadoTeclado.IsKeyPressed(Keys.Right) && objetoSelecionado != null)
-        Console.WriteLine("## 10. Transformações Geométricas: translação - direita");
+        objetoSelecionado.MatrizTranslacaoXYZ(0.1,0,0);
       if (estadoTeclado.IsKeyPressed(Keys.Up) && objetoSelecionado != null)
-        Console.WriteLine("## 10. Transformações Geométricas: translação - cima");
+        objetoSelecionado.MatrizTranslacaoXYZ(0,0.1,0);
       if (estadoTeclado.IsKeyPressed(Keys.Down) && objetoSelecionado != null)
-        Console.WriteLine("## 10. Transformações Geométricas: translação - baixo");
+        objetoSelecionado.MatrizTranslacaoXYZ(0,-0.1,0);
       // ## 11. Transformações Geométricas: escala
       // Utilizando as teclas PageUp/PageDown redimensione o polígono selecionado em relação ao SRU.  [TODO: testar]
-      if (estadoTeclado.IsKeyPressed(Keys.PageUp) && objetoSelecionado != null)
-        Console.WriteLine("## 11. Transformações Geométricas: escala - PageUp");
-      if (estadoTeclado.IsKeyPressed(Keys.PageDown) && objetoSelecionado != null)
-        Console.WriteLine("## 11. Transformações Geométricas: escala - PageDown");
+      if (estadoTeclado.IsKeyPressed(Keys.F1) && objetoSelecionado != null)
+        objetoSelecionado.MatrizEscalaXYZ(2,2,2);
+      if (estadoTeclado.IsKeyPressed(Keys.F2) && objetoSelecionado != null)
+        objetoSelecionado.MatrizEscalaXYZ(0.5,0.5,0.5);
       // Utilizando as teclas Home/End redimensione o polígono selecionado em relação ao centro da sua BBox.  [TODO: testar]
-      if (estadoTeclado.IsKeyPressed(Keys.Home) && objetoSelecionado != null)
-        Console.WriteLine("## 11. Transformações Geométricas: escala - Home");
-      if (estadoTeclado.IsKeyPressed(Keys.End) && objetoSelecionado != null)
-        Console.WriteLine("## 11. Transformações Geométricas: escala - End");
+      if (estadoTeclado.IsKeyPressed(Keys.F3) && objetoSelecionado != null)
+        objetoSelecionado.MatrizEscalaXYZBBox(2,2,2);
+      if (estadoTeclado.IsKeyPressed(Keys.F4) && objetoSelecionado != null)
+        objetoSelecionado.MatrizEscalaXYZBBox(0.5,0.5,0.5);
       // ## 12. Transformações Geométricas: rotação
       // Utilizando as teclas numéricas 1 e 2 gire o polígono selecionado em relação ao SRU.
       if (estadoTeclado.IsKeyPressed(Keys.D1) && objetoSelecionado != null)
-        Console.WriteLine("## 12. Transformações Geométricas: rotação - Tecla 1");
+        objetoSelecionado.MatrizRotacao(10);
       if (estadoTeclado.IsKeyPressed(Keys.D2) && objetoSelecionado != null)
-        Console.WriteLine("## 12. Transformações Geométricas: rotação - Tecla 2");
+        objetoSelecionado.MatrizRotacao(-10);
       // Utilizando as teclas numéricas 3 e 4 gire o polígono selecionado em relação ao centro da sua BBox.
       if (estadoTeclado.IsKeyPressed(Keys.D3) && objetoSelecionado != null)
-        Console.WriteLine("## 12. Transformações Geométricas: rotação - Tecla 3");
+        objetoSelecionado.MatrizRotacaoZBBox(10);
       if (estadoTeclado.IsKeyPressed(Keys.D4) && objetoSelecionado != null)
-        Console.WriteLine("## 12. Transformações Geométricas: rotação - Tecla 4");
+        objetoSelecionado.MatrizRotacaoZBBox(-10);
       #endregion
 
       #region  Mouse
@@ -336,7 +336,6 @@ namespace gcgcg
         Console.WriteLine("Vector2i windowSize: " + ClientSize);
         Console.WriteLine("Vector2 mousePosition: " + MousePosition);
 
-        // Converte coordenadas do mouse para SRU
         Ponto4D sruPonto = Utilitario.NDC_TelaSRU(ClientSize.X, ClientSize.Y, new Ponto4D(MousePosition.X, MousePosition.Y));
         Console.WriteLine("mousePosition (SRU): " + sruPonto);
 
@@ -357,7 +356,7 @@ namespace gcgcg
         if (objetoSelecionado != null)
         {
           Console.WriteLine("Objeto selecionado com sucesso!");
-          objetoSelecionado.Bbox().Desenhar(); // Desenha a BBox do objeto selecionado
+          objetoSelecionado.Bbox().Desenhar();
         }
         else
         {
