@@ -206,10 +206,10 @@ namespace gcgcg
         _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
       if (estadoTeclado.IsKeyDown(Keys.LeftShift))
         _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
-      // if (estadoTeclado.IsKeyDown(Keys.D9))
-      //   _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
-      // if (estadoTeclado.IsKeyDown(Keys.D0))
-      //   _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
+      if (estadoTeclado.IsKeyDown(Keys.D9))
+        _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
+      if (estadoTeclado.IsKeyDown(Keys.D0))
+        _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
 
       #endregion
 
