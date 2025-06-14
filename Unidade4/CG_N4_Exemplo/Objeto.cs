@@ -26,8 +26,12 @@ namespace gcgcg
 
     // Vértices do objeto TODO: o objeto mundo deveria ter estes atributos abaixo?
     protected List<Ponto4D> pontosLista = new List<Ponto4D>();
+    protected List<Ponto4D> pontosTextura = new List<Ponto4D>();
+    protected List<Ponto4D> pontosNormal = new List<Ponto4D>();
     private int _vertexBufferObject;
     private int _vertexArrayObject;
+    private int _texturaBufferObject;
+    private int _normalBufferObject;
 
     // BBox do objeto
     private BBox bBox = new BBox();
@@ -83,15 +87,49 @@ namespace gcgcg
         ptoLista++;
       }
 
+      float[] verticesTextura = new float[pontosTextura.Count * 2];
+      var ptoTextura = 0;
+      for (int i = 0; i < verticesTextura.Length; i += 2)
+      {
+        verticesTextura[i] = (float)pontosTextura[ptoTextura].X;
+        verticesTextura[i + 1] = (float)pontosTextura[ptoTextura].Y;
+        ptoTextura++;
+      }
+
+      float[] verticesNormal = new float[pontosNormal.Count * 3];
+      var ptoNormal = 0;
+      for (int i = 0; i < verticesNormal.Length; i += 3)
+      {
+        verticesNormal[i] = (float)pontosNormal[ptoNormal].X;
+        verticesNormal[i + 1] = (float)pontosNormal[ptoNormal].Y;
+        verticesNormal[i + 2] = (float)pontosNormal[ptoNormal].Z;
+        ptoNormal++;
+      }
+
       GL.PointSize(primitivaTamanho);
 
       _vertexBufferObject = GL.GenBuffer();
       GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
       GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
+
       _vertexArrayObject = GL.GenVertexArray();
       GL.BindVertexArray(_vertexArrayObject);
       GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
       GL.EnableVertexAttribArray(0);
+
+      // Textura
+      _texturaBufferObject = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ArrayBuffer, _texturaBufferObject);
+      GL.BufferData(BufferTarget.ArrayBuffer, verticesTextura.Length * sizeof(float), verticesTextura, BufferUsageHint.StaticDraw);
+      GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 2 * sizeof(float), 0);
+      GL.EnableVertexAttribArray(1);
+
+      // Iluminacao
+      _normalBufferObject = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ArrayBuffer, _normalBufferObject);
+      GL.BufferData(BufferTarget.ArrayBuffer, verticesNormal.Length * sizeof(float), verticesNormal, BufferUsageHint.StaticDraw);
+      GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+      GL.EnableVertexAttribArray(2);
 
       bBox.Atualizar(matriz,pontosLista);
 
