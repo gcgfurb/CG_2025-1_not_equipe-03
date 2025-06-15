@@ -86,7 +86,7 @@ namespace gcgcg
                 indicesNormais: new[] { 1, 1, 1, 1, 1, 1 });
 
             _shaderTextura = new Shader("Shaders/shaderTextura.vert", "Shaders/shaderTextura.frag");
-            _textura = Texture.LoadFromFile("resources/dinossauros.png");
+            _textura = Texture.LoadFromFile("resources/luigi.png");
 
             faceFrente.shaderCor = _shaderTextura;
             faceCima.shaderCor = _shaderTextura;
@@ -134,32 +134,54 @@ namespace gcgcg
             var faceFrente = new Face(
                 _paiRef: this,
                 ref rotulo,
-                vertices: new[] { _vertices[3], _vertices[2], _vertices[6], _vertices[6], _vertices[7], _vertices[3] });
+                vertices: new[] { _vertices[3], _vertices[2], _vertices[6], _vertices[6], _vertices[7], _vertices[3] },
+                indicesTexturas: new[] { 3, 1, 0, 0, 2, 3 },
+                indicesNormais: new[] { 2, 2, 2, 2, 2, 2 });
 
             var faceCima = new Face(
                 _paiRef: this,
                 ref rotulo,
-                vertices: new[] { _vertices[0], _vertices[1], _vertices[2], _vertices[2], _vertices[3], _vertices[0] });
+                vertices: new[] { _vertices[0], _vertices[1], _vertices[2], _vertices[2], _vertices[3], _vertices[0] },
+                indicesTexturas: new[] { 2, 0, 1, 1, 3, 2 },
+                indicesNormais: new[] { 5, 5, 5, 5, 5, 5 });
 
             var faceFundo = new Face(
                 _paiRef: this,
                 ref rotulo,
-                vertices: new[] { _vertices[0], _vertices[1], _vertices[5], _vertices[5], _vertices[4], _vertices[0] });
+                vertices: new[] { _vertices[0], _vertices[1], _vertices[5], _vertices[5], _vertices[4], _vertices[0] },
+                indicesTexturas: new[] { 3, 1, 0, 0, 2, 3 },
+                indicesNormais: new[] { 0, 0, 0, 0, 0, 0 });
 
             var faceBaixo = new Face(
                 _paiRef: this,
                 ref rotulo,
-                vertices: new[] { _vertices[4], _vertices[5], _vertices[6], _vertices[6], _vertices[7], _vertices[4] });
+                vertices: new[] { _vertices[4], _vertices[5], _vertices[6], _vertices[6], _vertices[7], _vertices[4] },
+                indicesTexturas: new[] { 2, 0, 1, 1, 3, 2 },
+                indicesNormais: new[] { 4, 4, 4, 4, 4, 4 });
 
             var faceEsquerda = new Face(
                 _paiRef: this,
                 ref rotulo,
-                vertices: new[] { _vertices[3], _vertices[0], _vertices[4], _vertices[4], _vertices[7], _vertices[3] });
+                vertices: new[] { _vertices[3], _vertices[0], _vertices[4], _vertices[4], _vertices[7], _vertices[3] },
+                indicesTexturas: new[] { 2, 0, 1, 1, 3, 2 },
+                indicesNormais: new[] { 3, 3, 3, 3, 3, 3 });
 
             var faceDireita = new Face(
                 _paiRef: this,
                 ref rotulo,
-                vertices: new[] { _vertices[2], _vertices[1], _vertices[5], _vertices[5], _vertices[6], _vertices[2] });
+                vertices: new[] { _vertices[2], _vertices[1], _vertices[5], _vertices[5], _vertices[6], _vertices[2] },
+                indicesTexturas: new[] { 2, 0, 1, 1, 3, 2 },
+                indicesNormais: new[] { 1, 1, 1, 1, 1, 1 });
+
+            _shaderTextura = new Shader("Shaders/shaderTextura.vert", "Shaders/shaderTextura.frag");
+            _textura = Texture.LoadFromFile("resources/ari.png");
+
+            faceFrente.shaderCor = _shaderTextura;
+            faceCima.shaderCor = _shaderTextura;
+            faceFundo.shaderCor = _shaderTextura;
+            faceBaixo.shaderCor = _shaderTextura;
+            faceEsquerda.shaderCor = _shaderTextura;
+            faceDireita.shaderCor = _shaderTextura;
 
             _faces = new[]
             {
