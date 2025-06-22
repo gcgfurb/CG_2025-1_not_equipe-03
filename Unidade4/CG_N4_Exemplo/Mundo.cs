@@ -29,6 +29,7 @@ namespace gcgcg
     private Vector2 posicaoMouseAnterior;
     private bool primeiroMovimentoMouse = true;
     private float sensibilidadeMouse = 0.2f;
+    private Texture _diffuseMap;
 
 
 #if CG_Gizmo
@@ -55,6 +56,7 @@ namespace gcgcg
     private Shader _shaderCiano;
     private Shader _shaderMagenta;
     private Shader _shaderAmarela;
+    private Shader _shaderTextura;
 
     private Camera _camera;
 
@@ -72,7 +74,10 @@ namespace gcgcg
       CursorState = CursorState.Grabbed;
 
       Utilitario.Diretivas();
-#if CG_DEBUG      
+
+      _diffuseMap = Texture.LoadFromFile("resources/ari.png");
+
+#if CG_DEBUG
       Console.WriteLine("Tamanho interno da janela de desenho: " + ClientSize.X + "x" + ClientSize.Y);
 #endif
 
@@ -91,6 +96,7 @@ namespace gcgcg
       _shaderCiano = new Shader("Shaders/shader.vert", "Shaders/shaderCiano.frag");
       _shaderMagenta = new Shader("Shaders/shader.vert", "Shaders/shaderMagenta.frag");
       _shaderAmarela = new Shader("Shaders/shader.vert", "Shaders/shaderAmarela.frag");
+      _shaderTextura = new Shader("Shaders/shaderTextura.vert", "Shaders/shaderTextura.frag");
       #endregion
 
 #if CG_Gizmo
@@ -107,20 +113,14 @@ namespace gcgcg
       #endregion
 #endif
 
-      #region Objeto: ponto  
-      objetoSelecionado = new Ponto(mundo, ref rotuloNovo, new Ponto4D(2.0, 0.0));
-      objetoSelecionado.PrimitivaTipo = PrimitiveType.Points;
-      objetoSelecionado.PrimitivaTamanho = 5;
-      #endregion
-
       #region Objeto: Cubo
       objetoSelecionado = new Cubo(mundo, ref rotuloNovo);
+      objetoSelecionado.shaderCor = _shaderTextura;
       cuboMenor = new Cubo(objetoSelecionado, ref rotuloNovo);
       cuboMenor.shaderCor = _shaderVermelha;
 
       #endregion
       //objetoSelecionado.MatrizEscalaXYZ(0.2, 0.2, 0.2);
-      objetoSelecionado.shaderCor = _shaderAmarela;
 
       _camera = new Camera(Vector3.UnitZ * 5, ClientSize.X / (float)ClientSize.Y);
     }
@@ -131,9 +131,14 @@ namespace gcgcg
 
       GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
+      _diffuseMap.Use(TextureUnit.Texture0);
+      _shaderTextura.Use();
+      _shaderTextura.SetInt("texture0", 0);
+
+      // Desenha
       mundo.Desenhar(new Transformacao4D(), _camera);
 
-#if CG_Gizmo      
+#if CG_Gizmo
       Gizmo_Sru3D();
 
       frames++;
@@ -144,6 +149,7 @@ namespace gcgcg
         stopwatch.Restart();
       }
 #endif
+
       SwapBuffers();
     }
 
@@ -158,7 +164,7 @@ namespace gcgcg
       {
         cuboMenor.MatrizAtribuirIdentidade();
 
-        cuboMenor.MatrizEscalaXYZ(0.3, 0.3, 0.3);
+        cuboMenor.MatrizEscalaXYZ(0.2, 0.2, 0.2);
         cuboMenor.MatrizTranslacaoXYZ(2.5, 0.0, 0.0);
 
         cuboMenor.TrocaEixoRotacao('z');
@@ -206,16 +212,22 @@ namespace gcgcg
         objetoSelecionado.MatrizEscalaXYZBBox(0.5, 0.5, 0.5);
       if (estadoTeclado.IsKeyPressed(Keys.End) && objetoSelecionado != null)
         objetoSelecionado.MatrizEscalaXYZBBox(2, 2, 2);
+      if (estadoTeclado.IsKeyPressed(Keys.D0) && objetoSelecionado != null)
+      
       if (estadoTeclado.IsKeyPressed(Keys.D1) && objetoSelecionado != null)
-        objetoSelecionado.MatrizRotacao(10);
+          objetoSelecionado.MatrizRotacao(10);
       if (estadoTeclado.IsKeyPressed(Keys.D2) && objetoSelecionado != null)
         objetoSelecionado.MatrizRotacao(-10);
       if (estadoTeclado.IsKeyPressed(Keys.D3) && objetoSelecionado != null)
         objetoSelecionado.MatrizRotacaoZBBox(10);
       if (estadoTeclado.IsKeyPressed(Keys.D4) && objetoSelecionado != null)
         objetoSelecionado.MatrizRotacaoZBBox(-10);
+      // if (estadoTeclado.IsKeyPressed(Keys.D5) && objetoSelecionado != null)
+      
+      // if (estadoTeclado.IsKeyPressed(Keys.D6) && objetoSelecionado != null)
 
-      const float cameraSpeed = 1.5f;
+
+          const float cameraSpeed = 1.5f;
       if (estadoTeclado.IsKeyDown(Keys.Z))
         _camera.Position = Vector3.UnitZ * 5;
       if (estadoTeclado.IsKeyDown(Keys.W))
