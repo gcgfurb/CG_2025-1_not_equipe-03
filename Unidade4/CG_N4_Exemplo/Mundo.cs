@@ -1,6 +1,6 @@
 ﻿#define CG_DEBUG
-#define CG_Gizmo      
-#define CG_OpenGL      
+#define CG_Gizmo
+#define CG_OpenGL
 // #define CG_OpenTK
 // #define CG_DirectX      
 // #define CG_Privado      
@@ -24,6 +24,12 @@ namespace gcgcg
     private static Objeto mundo = null;
     private char rotuloNovo = '?';
     private Objeto objetoSelecionado = null;
+    private Objeto cuboMenor = null;
+    private float orbita = 0.0f;
+    private Vector2 posicaoMouseAnterior;
+    private bool primeiroMovimentoMouse = true;
+    private float sensibilidadeMouse = 0.2f;
+
 
 #if CG_Gizmo
     private readonly float[] _sruEixos =
@@ -35,6 +41,7 @@ namespace gcgcg
 
     private int _vertexBufferObject_sruEixos;
     private int _vertexArrayObject_sruEixos;
+
 
     // FPS
     private int frames = 0;
@@ -48,11 +55,8 @@ namespace gcgcg
     private Shader _shaderCiano;
     private Shader _shaderMagenta;
     private Shader _shaderAmarela;
+
     private Camera _camera;
-    private Cubo _cuboMaior;
-    private Cubo _cuboMenor;
-    private bool _primeiroMovimentoMouse;
-    private Vector2 _ultimaPosicaoMouse;
 
     public Mundo(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
            : base(gameWindowSettings, nativeWindowSettings)
@@ -64,6 +68,8 @@ namespace gcgcg
     protected override void OnLoad()
     {
       base.OnLoad();
+
+      CursorState = CursorState.Grabbed;
 
       Utilitario.Diretivas();
 #if CG_DEBUG      
@@ -100,21 +106,23 @@ namespace gcgcg
       stopwatch.Start();
       #endregion
 #endif
-      #region Objeto: Cubo maior
-      _cuboMaior = new Cubo(mundo, ref rotuloNovo, true);
-      objetoSelecionado = _cuboMaior;
+
+      #region Objeto: ponto  
+      objetoSelecionado = new Ponto(mundo, ref rotuloNovo, new Ponto4D(2.0, 0.0));
+      objetoSelecionado.PrimitivaTipo = PrimitiveType.Points;
+      objetoSelecionado.PrimitivaTamanho = 5;
       #endregion
 
-      #region Objeto: Cubo menor
-      _cuboMenor = new Cubo(mundo, ref rotuloNovo, false);
-      objetoSelecionado = _cuboMenor;
-      #endregion
+      #region Objeto: Cubo
+      objetoSelecionado = new Cubo(mundo, ref rotuloNovo);
+      cuboMenor = new Cubo(objetoSelecionado, ref rotuloNovo);
+      cuboMenor.shaderCor = _shaderVermelha;
 
+      #endregion
+      //objetoSelecionado.MatrizEscalaXYZ(0.2, 0.2, 0.2);
       objetoSelecionado.shaderCor = _shaderAmarela;
 
       _camera = new Camera(Vector3.UnitZ * 5, ClientSize.X / (float)ClientSize.Y);
-
-      CursorState = CursorState.Grabbed;
     }
 
     protected override void OnRenderFrame(FrameEventArgs e)
@@ -132,7 +140,7 @@ namespace gcgcg
       if (stopwatch.ElapsedMilliseconds >= 1000)
       {
         Console.WriteLine($"FPS: {frames}");
-        frames = 0; 
+        frames = 0;
         stopwatch.Restart();
       }
 #endif
@@ -142,6 +150,20 @@ namespace gcgcg
     protected override void OnUpdateFrame(FrameEventArgs e)
     {
       base.OnUpdateFrame(e);
+
+
+      orbita += 30f * (float)e.Time;
+
+      if (cuboMenor != null)
+      {
+        cuboMenor.MatrizAtribuirIdentidade();
+
+        cuboMenor.MatrizEscalaXYZ(0.3, 0.3, 0.3);
+        cuboMenor.MatrizTranslacaoXYZ(2.5, 0.0, 0.0);
+
+        cuboMenor.TrocaEixoRotacao('z');
+        cuboMenor.MatrizRotacao(orbita);
+      }
 
       // ☞ 396c2670-8ce0-4aff-86da-0f58cd8dcfdc   TODO: forma otimizada para teclado.
       #region Teclado
@@ -208,64 +230,54 @@ namespace gcgcg
         _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
       if (estadoTeclado.IsKeyDown(Keys.LeftShift))
         _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
-      if (estadoTeclado.IsKeyDown(Keys.D9))
-        _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
-      if (estadoTeclado.IsKeyDown(Keys.D0))
-        _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
-
+                                                                      // if (estadoTeclado.IsKeyDown(Keys.D9))
+                                                                      //   _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
+                                                                      // if (estadoTeclado.IsKeyDown(Keys.D0))
+                                                                      //   _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
       #endregion
 
       #region  Mouse
+      Vector2 posicaoMouseAtual = MousePosition;
 
-      var estadoMouse = MouseState;
-      const float sensitivity = 0.1f;
-
-      if (_primeiroMovimentoMouse)
+      if (primeiroMovimentoMouse)
       {
-        _ultimaPosicaoMouse = new Vector2(estadoMouse.X, estadoMouse.Y);
-        _primeiroMovimentoMouse = false;
-      }
-      else
-      {
-        var deltaX = estadoMouse.X - _ultimaPosicaoMouse.X;
-        var deltaY = estadoMouse.Y - _ultimaPosicaoMouse.Y;
-
-        _ultimaPosicaoMouse = new Vector2(estadoMouse.X, estadoMouse.Y);
-
-        _camera.Yaw += deltaX * sensitivity;
-        _camera.Pitch -= deltaY * sensitivity;
+        posicaoMouseAnterior = posicaoMouseAtual;
+        primeiroMovimentoMouse = false;
       }
 
-      // if (MouseState.IsButtonPressed(MouseButton.Left))
-      // {
-      //   Console.WriteLine("MouseState.IsButtonPressed(MouseButton.Left)");
-      //   Console.WriteLine("__ Valores do Espaço de Tela");
-      //   Console.WriteLine("Vector2 mousePosition: " + MousePosition);
-      //   Console.WriteLine("Vector2i windowSize: " + ClientSize);
+      float deltaX = posicaoMouseAtual.X - posicaoMouseAnterior.X;
+      float deltaY = posicaoMouseAtual.Y - posicaoMouseAnterior.Y;
+      posicaoMouseAnterior = posicaoMouseAtual;
 
-      //   _camera.Target = Vector3.Zero;
-      //   MouseState mouse = MouseState;
-      //   _camera.ProcessMouseMovement(mouse.Delta.X, mouse.Delta.Y);
-      // }
-      // if (MouseState.IsButtonDown(MouseButton.Right) && objetoSelecionado != null)
-      // {
-      //   Console.WriteLine("MouseState.IsButtonDown(MouseButton.Right)");
+      deltaY = -deltaY;
 
-      //   int janelaLargura = ClientSize.X;
-      //   int janelaAltura = ClientSize.Y;
-      //   Ponto4D mousePonto = new Ponto4D(MousePosition.X, MousePosition.Y);
-      //   Ponto4D sruPonto = Utilitario.NDC_TelaSRU(janelaLargura, janelaAltura, mousePonto);
+      _camera.Yaw += deltaX * sensibilidadeMouse;
+      _camera.Pitch += deltaY * sensibilidadeMouse;
 
-      //   objetoSelecionado.PontosAlterar(sruPonto, 0);
-      // }
-      // if (MouseState.IsButtonReleased(MouseButton.Right))
-      // {
-      //   Console.WriteLine("MouseState.IsButtonReleased(MouseButton.Right)");
-      // }
+      if (MouseState.IsButtonPressed(MouseButton.Left))
+      {
+        Console.WriteLine("MouseState.IsButtonPressed(MouseButton.Left)");
+        Console.WriteLine("__ Valores do Espaço de Tela");
+        Console.WriteLine("Vector2 mousePosition: " + MousePosition);
+        Console.WriteLine("Vector2i windowSize: " + ClientSize);
+      }
+      if (MouseState.IsButtonDown(MouseButton.Right) && objetoSelecionado != null)
+      {
+        Console.WriteLine("MouseState.IsButtonDown(MouseButton.Right)");
+
+        int janelaLargura = ClientSize.X;
+        int janelaAltura = ClientSize.Y;
+        Ponto4D mousePonto = new Ponto4D(MousePosition.X, MousePosition.Y);
+        Ponto4D sruPonto = Utilitario.NDC_TelaSRU(janelaLargura, janelaAltura, mousePonto);
+
+        objetoSelecionado.PontosAlterar(sruPonto, 0);
+      }
+      if (MouseState.IsButtonReleased(MouseButton.Right))
+      {
+        Console.WriteLine("MouseState.IsButtonReleased(MouseButton.Right)");
+      }
 
       #endregion
-
-      _cuboMenor.MatrizRotacao(0.1);
 
     }
 
