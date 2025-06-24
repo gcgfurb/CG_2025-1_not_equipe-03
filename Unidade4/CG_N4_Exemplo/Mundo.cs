@@ -35,6 +35,7 @@ namespace gcgcg
     private Shader _lightingShader;
     private Shader _lampShader;
 
+
     private Shader shaderatual;
 #if CG_Gizmo
     private readonly float[] _sruEixos =
@@ -61,6 +62,7 @@ namespace gcgcg
     private Shader _shaderAmarela;
     private Shader _shaderTextura;
     private Shader _shaderBasicLighting;
+
     private Camera _camera;
 
     // Enum para controlar o shader ativo
@@ -120,6 +122,7 @@ namespace gcgcg
       _shaderAmarela = new Shader("Shaders/shader.vert", "Shaders/shaderAmarela.frag");
       _shaderTextura = new Shader("Shaders/shaderTextura.vert", "Shaders/shaderTextura.frag");
       _shaderBasicLighting = new Shader("Shaders/shader.vert", "Shaders/basicLighting.frag");
+
       #endregion
 
 #if CG_Gizmo
@@ -231,6 +234,8 @@ namespace gcgcg
           _shaderTextura.Use();
           break;
       }
+      _shaderTextura.Use();
+      _shaderTextura.SetInt("texture0", 0);
 
       mundo.Desenhar(new Transformacao4D(), _camera);
 
@@ -328,7 +333,7 @@ namespace gcgcg
       if (estadoTeclado.IsKeyPressed(Keys.D7)) SetModoShader(ShaderModo.Magenta);
       if (estadoTeclado.IsKeyPressed(Keys.D8)) SetModoShader(ShaderModo.Amarela);
 
-      const float cameraSpeed = 1.5f;
+          const float cameraSpeed = 1.5f;
       if (estadoTeclado.IsKeyDown(Keys.Z))
         _camera.Position = Vector3.UnitZ * 5;
       if (estadoTeclado.IsKeyDown(Keys.W))
