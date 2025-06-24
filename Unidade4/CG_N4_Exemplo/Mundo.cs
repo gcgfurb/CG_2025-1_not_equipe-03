@@ -35,8 +35,7 @@ namespace gcgcg
     private Shader _lightingShader;
     private Shader _lampShader;
 
-
-    private Shader shaderatual;
+    private Shader currentShader;
 #if CG_Gizmo
     private readonly float[] _sruEixos =
     {
@@ -125,6 +124,11 @@ namespace gcgcg
 
       #endregion
 
+      #region 
+      _lightingShader = new Shader("Shaders/shader.vert", "Shaders/basicLighting.frag");
+      _lampShader = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
+      #endregion
+
 #if CG_Gizmo
       #region Eixos: SRU  
       _vertexBufferObject_sruEixos = GL.GenBuffer();
@@ -161,79 +165,52 @@ namespace gcgcg
 
       _diffuseMap.Use(TextureUnit.Texture0);
 
-      switch (modoShaderAtual)
+
+      if (modoShaderAtual == ShaderModo.Textura)
       {
-        case ShaderModo.Textura:
           _shaderTextura.Use();
           _shaderTextura.SetMatrix4("view", _camera.GetViewMatrix());
           _shaderTextura.SetMatrix4("projection", _camera.GetProjectionMatrix());
           _shaderTextura.SetInt("texture0", 0);
-          break;
-
-        case ShaderModo.BasicLighting:
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+          
+        }
 
 
-            _lightingShader.Use();
-
-            _lightingShader.SetMatrix4("model", Matrix4.Identity);
-            _lightingShader.SetMatrix4("view", _camera.GetViewMatrix());
-            _lightingShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
-
-            _lightingShader.SetVector3("objectColor", new Vector3(1.0f, 0.5f, 0.31f));
-            _lightingShader.SetVector3("lightColor", new Vector3(1.0f, 1.0f, 1.0f));
-            _lightingShader.SetVector3("lightPos", _lightPos);
-            _lightingShader.SetVector3("viewPos", _camera.Position);
-
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+      if (currentShader == _lightingShader && modoShaderAtual == ShaderModo.Branca)
+      {
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 
-            _lampShader.Use();
+        _lightingShader.Use();
 
-            Matrix4 lampMatrix = Matrix4.CreateScale(0.2f);
-            lampMatrix = lampMatrix * Matrix4.CreateTranslation(_lightPos);
+        _lightingShader.SetMatrix4("model", Matrix4.Identity);
+        _lightingShader.SetMatrix4("view", _camera.GetViewMatrix());
+        _lightingShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
 
-            _lampShader.SetMatrix4("model", lampMatrix);
-            _lampShader.SetMatrix4("view", _camera.GetViewMatrix());
-            _lampShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
+        _lightingShader.SetVector3("objectColor", new Vector3(1.0f, 0.5f, 0.31f));
+        _lightingShader.SetVector3("lightColor", new Vector3(1.0f, 1.0f, 1.0f));
+        _lightingShader.SetVector3("lightPos", _lightPos);
+        _lightingShader.SetVector3("viewPos", _camera.Position);
 
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+        GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
 
-            SwapBuffers();
-          break;
 
-        case ShaderModo.Branca:
-          _shaderBranca.Use();
-          break;
+        _lampShader.Use();
 
-        case ShaderModo.Vermelha:
-          _shaderVermelha.Use();
-          break;
+        Matrix4 lampMatrix = Matrix4.CreateScale(0.2f);
+        lampMatrix = lampMatrix * Matrix4.CreateTranslation(_lightPos);
 
-        case ShaderModo.Verde:
-          _shaderVerde.Use();
-          break;
+        _lampShader.SetMatrix4("model", lampMatrix);
+        _lampShader.SetMatrix4("view", _camera.GetViewMatrix());
+        _lampShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
 
-        case ShaderModo.Azul:
-          _shaderAzul.Use();
-          break;
+        GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
 
-        case ShaderModo.Ciano:
-          _shaderCiano.Use();
-          break;
-
-        case ShaderModo.Magenta:
-          _shaderMagenta.Use();
-          break;
-
-        case ShaderModo.Amarela:
-          _shaderAmarela.Use();
-          break;
-
-        default:
-          _shaderTextura.Use();
-          break;
-      }
+        SwapBuffers();
+          
+        currentShader = _shaderTextura;
+        }
+      
       _shaderTextura.Use();
       _shaderTextura.SetInt("texture0", 0);
 
@@ -321,11 +298,13 @@ namespace gcgcg
       }
       if (estadoTeclado.IsKeyPressed(Keys.D1))
       {
-        _lightingShader = new Shader("Shaders/shader.vert", "Shaders/basicLighting.frag");
-        _lampShader = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
-        SetModoShader(ShaderModo.BasicLighting);
+        currentShader = _lightingShader;
+       //SetModoShader(ShaderModo.BasicLighting);
       }
-      if (estadoTeclado.IsKeyPressed(Keys.D2)) SetModoShader(ShaderModo.Branca);
+      if (estadoTeclado.IsKeyPressed(Keys.D2))
+      {
+        SetModoShader(ShaderModo.Branca);
+      }
       if (estadoTeclado.IsKeyPressed(Keys.D3)) SetModoShader(ShaderModo.Vermelha);
       if (estadoTeclado.IsKeyPressed(Keys.D4)) SetModoShader(ShaderModo.Verde);
       if (estadoTeclado.IsKeyPressed(Keys.D5)) SetModoShader(ShaderModo.Azul);
