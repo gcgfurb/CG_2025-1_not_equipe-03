@@ -32,6 +32,10 @@ namespace gcgcg
     private Texture _diffuseMap;
     private Objeto _cuboLuz; // cubo emissor de luz fixo
     private readonly Vector3 _lightPos = new Vector3(1.2f, 1.0f, 2.0f);
+    private Shader _lightingShader;
+    private Shader _lampShader;
+
+    private Shader shaderatual;
 #if CG_Gizmo
     private readonly float[] _sruEixos =
     {
@@ -95,7 +99,7 @@ namespace gcgcg
 
       Utilitario.Diretivas();
 
-      _diffuseMap = Texture.LoadFromFile("resources/ari.png");
+      _diffuseMap = Texture.LoadFromFile("resources/equipe.jpg");
 
 #if CG_DEBUG
       Console.WriteLine("Tamanho interno da janela de desenho: " + ClientSize.X + "x" + ClientSize.Y);
@@ -164,18 +168,35 @@ namespace gcgcg
           break;
 
         case ShaderModo.BasicLighting:
-          _shaderBasicLighting.Use();
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-          _shaderBasicLighting.SetMatrix4("model", Matrix4.Identity);
-          _shaderBasicLighting.SetMatrix4("view", _camera.GetViewMatrix());
-          _shaderBasicLighting.SetMatrix4("projection", _camera.GetProjectionMatrix());
 
-          _shaderBasicLighting.SetVector3("objectColor", new Vector3(1.0f, 0.5f, 0.31f));
-          _shaderBasicLighting.SetVector3("lightColor", new Vector3(1.0f, 1.0f, 1.0f));
-          _shaderBasicLighting.SetVector3("lightPos", _lightPos);
-          _shaderBasicLighting.SetVector3("viewPos", _camera.Position);
+            _lightingShader.Use();
 
-          GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+            _lightingShader.SetMatrix4("model", Matrix4.Identity);
+            _lightingShader.SetMatrix4("view", _camera.GetViewMatrix());
+            _lightingShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+            _lightingShader.SetVector3("objectColor", new Vector3(1.0f, 0.5f, 0.31f));
+            _lightingShader.SetVector3("lightColor", new Vector3(1.0f, 1.0f, 1.0f));
+            _lightingShader.SetVector3("lightPos", _lightPos);
+            _lightingShader.SetVector3("viewPos", _camera.Position);
+
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+
+
+            _lampShader.Use();
+
+            Matrix4 lampMatrix = Matrix4.CreateScale(0.2f);
+            lampMatrix = lampMatrix * Matrix4.CreateTranslation(_lightPos);
+
+            _lampShader.SetMatrix4("model", lampMatrix);
+            _lampShader.SetMatrix4("view", _camera.GetViewMatrix());
+            _lampShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+
+            SwapBuffers();
           break;
 
         case ShaderModo.Branca:
@@ -232,7 +253,7 @@ namespace gcgcg
     {
       base.OnUpdateFrame(e);
 
-      orbita += 30f * (float)e.Time;
+      orbita += 100f * (float)e.Time;
 
       if (cuboMenor != null)
       {
@@ -241,7 +262,7 @@ namespace gcgcg
         cuboMenor.MatrizEscalaXYZ(0.2, 0.2, 0.2);
         cuboMenor.MatrizTranslacaoXYZ(2.5, 0.0, 0.0);
 
-        cuboMenor.TrocaEixoRotacao('z');
+        cuboMenor.TrocaEixoRotacao('y');
         cuboMenor.MatrizRotacao(orbita);
       }
 
@@ -289,8 +310,16 @@ namespace gcgcg
         objetoSelecionado.MatrizEscalaXYZBBox(2, 2, 2);
 
       // Mapeamento para mudar shader via teclado:
-      if (estadoTeclado.IsKeyPressed(Keys.D0)) SetModoShader(ShaderModo.Textura);
-      if (estadoTeclado.IsKeyPressed(Keys.D1)) SetModoShader(ShaderModo.BasicLighting);
+      if (estadoTeclado.IsKeyPressed(Keys.D0))
+      {
+        SetModoShader(ShaderModo.Textura);
+      }
+      if (estadoTeclado.IsKeyPressed(Keys.D1))
+      {
+        _lightingShader = new Shader("Shaders/shader.vert", "Shaders/basicLighting.frag");
+        _lampShader = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
+        SetModoShader(ShaderModo.BasicLighting);
+      }
       if (estadoTeclado.IsKeyPressed(Keys.D2)) SetModoShader(ShaderModo.Branca);
       if (estadoTeclado.IsKeyPressed(Keys.D3)) SetModoShader(ShaderModo.Vermelha);
       if (estadoTeclado.IsKeyPressed(Keys.D4)) SetModoShader(ShaderModo.Verde);
