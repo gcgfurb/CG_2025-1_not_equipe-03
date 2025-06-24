@@ -75,7 +75,7 @@ namespace gcgcg
 
       Utilitario.Diretivas();
 
-      _diffuseMap = Texture.LoadFromFile("resources/ari.png");
+      _diffuseMap = Texture.LoadFromFile("resources/equipe.jpg");
 
 #if CG_DEBUG
       Console.WriteLine("Tamanho interno da janela de desenho: " + ClientSize.X + "x" + ClientSize.Y);
@@ -158,7 +158,7 @@ namespace gcgcg
       base.OnUpdateFrame(e);
 
 
-      orbita += 30f * (float)e.Time;
+      orbita += 100f * (float)e.Time;
 
       if (cuboMenor != null)
       {
@@ -167,7 +167,7 @@ namespace gcgcg
         cuboMenor.MatrizEscalaXYZ(0.2, 0.2, 0.2);
         cuboMenor.MatrizTranslacaoXYZ(2.5, 0.0, 0.0);
 
-        cuboMenor.TrocaEixoRotacao('z');
+        cuboMenor.TrocaEixoRotacao('y');
         cuboMenor.MatrizRotacao(orbita);
       }
 
