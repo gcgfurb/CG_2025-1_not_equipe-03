@@ -30,8 +30,13 @@ namespace gcgcg
     private bool primeiroMovimentoMouse = true;
     private float sensibilidadeMouse = 0.2f;
     private Texture _diffuseMap;
+    private Objeto _cuboLuz; // cubo emissor de luz fixo
+    private readonly Vector3 _lightPos = new Vector3(1.2f, 1.0f, 2.0f);
+    private Shader _lightingShader;
+    private Shader _lampShader;
 
 
+    private Shader shaderatual;
 #if CG_Gizmo
     private readonly float[] _sruEixos =
     {
@@ -42,7 +47,6 @@ namespace gcgcg
 
     private int _vertexBufferObject_sruEixos;
     private int _vertexArrayObject_sruEixos;
-
 
     // FPS
     private int frames = 0;
@@ -57,8 +61,25 @@ namespace gcgcg
     private Shader _shaderMagenta;
     private Shader _shaderAmarela;
     private Shader _shaderTextura;
+    private Shader _shaderBasicLighting;
 
     private Camera _camera;
+
+    // Enum para controlar o shader ativo
+    public enum ShaderModo
+    {
+      Textura,
+      BasicLighting,
+      Branca,
+      Vermelha,
+      Verde,
+      Azul,
+      Ciano,
+      Magenta,
+      Amarela
+    }
+
+    private ShaderModo modoShaderAtual = ShaderModo.Textura;
 
     public Mundo(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
            : base(gameWindowSettings, nativeWindowSettings)
@@ -66,6 +87,11 @@ namespace gcgcg
       mundo ??= new Objeto(null, ref rotuloNovo); //padrão Singleton
     }
 
+    public void SetModoShader(ShaderModo novoModo)
+    {
+      modoShaderAtual = novoModo;
+      Console.WriteLine($"Shader alterado para: {modoShaderAtual}");
+    }
 
     protected override void OnLoad()
     {
@@ -84,9 +110,7 @@ namespace gcgcg
       GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
       GL.Enable(EnableCap.DepthTest);       // Ativar teste de profundidade
-      GL.Enable(EnableCap.CullFace);     // Desenha os dois lados da face
-      // GL.FrontFace(FrontFaceDirection.Cw);
-      // GL.CullFace(CullFaceMode.FrontAndBack);
+      GL.Enable(EnableCap.CullFace);         // Desenha os dois lados da face
 
       #region Cores
       _shaderBranca = new Shader("Shaders/shader.vert", "Shaders/shaderBranca.frag");
@@ -97,6 +121,8 @@ namespace gcgcg
       _shaderMagenta = new Shader("Shaders/shader.vert", "Shaders/shaderMagenta.frag");
       _shaderAmarela = new Shader("Shaders/shader.vert", "Shaders/shaderAmarela.frag");
       _shaderTextura = new Shader("Shaders/shaderTextura.vert", "Shaders/shaderTextura.frag");
+      _shaderBasicLighting = new Shader("Shaders/shader.vert", "Shaders/basicLighting.frag");
+
       #endregion
 
 #if CG_Gizmo
@@ -118,9 +144,11 @@ namespace gcgcg
       objetoSelecionado.shaderCor = _shaderTextura;
       cuboMenor = new Cubo(objetoSelecionado, ref rotuloNovo);
       cuboMenor.shaderCor = _shaderVermelha;
-
+      // _cuboLuz = new Cubo(mundo, ref rotuloNovo);
+      // _cuboLuz.shaderCor = _shaderBranca;
+      // _cuboLuz.MatrizAtribuirIdentidade();
+      // _cuboLuz.MatrizTranslacaoXYZ(5f, 5f, 5f);
       #endregion
-      //objetoSelecionado.MatrizEscalaXYZ(0.2, 0.2, 0.2);
 
       _camera = new Camera(Vector3.UnitZ * 5, ClientSize.X / (float)ClientSize.Y);
     }
@@ -132,10 +160,83 @@ namespace gcgcg
       GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
       _diffuseMap.Use(TextureUnit.Texture0);
+
+      switch (modoShaderAtual)
+      {
+        case ShaderModo.Textura:
+          _shaderTextura.Use();
+          _shaderTextura.SetMatrix4("view", _camera.GetViewMatrix());
+          _shaderTextura.SetMatrix4("projection", _camera.GetProjectionMatrix());
+          _shaderTextura.SetInt("texture0", 0);
+          break;
+
+        case ShaderModo.BasicLighting:
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+
+            _lightingShader.Use();
+
+            _lightingShader.SetMatrix4("model", Matrix4.Identity);
+            _lightingShader.SetMatrix4("view", _camera.GetViewMatrix());
+            _lightingShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+            _lightingShader.SetVector3("objectColor", new Vector3(1.0f, 0.5f, 0.31f));
+            _lightingShader.SetVector3("lightColor", new Vector3(1.0f, 1.0f, 1.0f));
+            _lightingShader.SetVector3("lightPos", _lightPos);
+            _lightingShader.SetVector3("viewPos", _camera.Position);
+
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+
+
+            _lampShader.Use();
+
+            Matrix4 lampMatrix = Matrix4.CreateScale(0.2f);
+            lampMatrix = lampMatrix * Matrix4.CreateTranslation(_lightPos);
+
+            _lampShader.SetMatrix4("model", lampMatrix);
+            _lampShader.SetMatrix4("view", _camera.GetViewMatrix());
+            _lampShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+
+            SwapBuffers();
+          break;
+
+        case ShaderModo.Branca:
+          _shaderBranca.Use();
+          break;
+
+        case ShaderModo.Vermelha:
+          _shaderVermelha.Use();
+          break;
+
+        case ShaderModo.Verde:
+          _shaderVerde.Use();
+          break;
+
+        case ShaderModo.Azul:
+          _shaderAzul.Use();
+          break;
+
+        case ShaderModo.Ciano:
+          _shaderCiano.Use();
+          break;
+
+        case ShaderModo.Magenta:
+          _shaderMagenta.Use();
+          break;
+
+        case ShaderModo.Amarela:
+          _shaderAmarela.Use();
+          break;
+
+        default:
+          _shaderTextura.Use();
+          break;
+      }
       _shaderTextura.Use();
       _shaderTextura.SetInt("texture0", 0);
 
-      // Desenha
       mundo.Desenhar(new Transformacao4D(), _camera);
 
 #if CG_Gizmo
@@ -157,7 +258,6 @@ namespace gcgcg
     {
       base.OnUpdateFrame(e);
 
-
       orbita += 100f * (float)e.Time;
 
       if (cuboMenor != null)
@@ -171,11 +271,11 @@ namespace gcgcg
         cuboMenor.MatrizRotacao(orbita);
       }
 
-      // ☞ 396c2670-8ce0-4aff-86da-0f58cd8dcfdc   TODO: forma otimizada para teclado.
       #region Teclado
       var estadoTeclado = KeyboardState;
       if (estadoTeclado.IsKeyDown(Keys.Escape))
         Close();
+
       if (estadoTeclado.IsKeyPressed(Keys.Space))
       {
         if (objetoSelecionado == null)
@@ -184,6 +284,7 @@ namespace gcgcg
         objetoSelecionado = mundo.GrafocenaBuscaProximo(objetoSelecionado);
         objetoSelecionado.shaderCor = _shaderAmarela;
       }
+
       if (estadoTeclado.IsKeyPressed(Keys.G))
         mundo.GrafocenaImprimir("");
       if (estadoTeclado.IsKeyPressed(Keys.P) && objetoSelecionado != null)
@@ -212,20 +313,25 @@ namespace gcgcg
         objetoSelecionado.MatrizEscalaXYZBBox(0.5, 0.5, 0.5);
       if (estadoTeclado.IsKeyPressed(Keys.End) && objetoSelecionado != null)
         objetoSelecionado.MatrizEscalaXYZBBox(2, 2, 2);
-      if (estadoTeclado.IsKeyPressed(Keys.D0) && objetoSelecionado != null)
-      
-      if (estadoTeclado.IsKeyPressed(Keys.D1) && objetoSelecionado != null)
-          objetoSelecionado.MatrizRotacao(10);
-      if (estadoTeclado.IsKeyPressed(Keys.D2) && objetoSelecionado != null)
-        objetoSelecionado.MatrizRotacao(-10);
-      if (estadoTeclado.IsKeyPressed(Keys.D3) && objetoSelecionado != null)
-        objetoSelecionado.MatrizRotacaoZBBox(10);
-      if (estadoTeclado.IsKeyPressed(Keys.D4) && objetoSelecionado != null)
-        objetoSelecionado.MatrizRotacaoZBBox(-10);
-      // if (estadoTeclado.IsKeyPressed(Keys.D5) && objetoSelecionado != null)
-      
-      // if (estadoTeclado.IsKeyPressed(Keys.D6) && objetoSelecionado != null)
 
+      // Mapeamento para mudar shader via teclado:
+      if (estadoTeclado.IsKeyPressed(Keys.D0))
+      {
+        SetModoShader(ShaderModo.Textura);
+      }
+      if (estadoTeclado.IsKeyPressed(Keys.D1))
+      {
+        _lightingShader = new Shader("Shaders/shader.vert", "Shaders/basicLighting.frag");
+        _lampShader = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
+        SetModoShader(ShaderModo.BasicLighting);
+      }
+      if (estadoTeclado.IsKeyPressed(Keys.D2)) SetModoShader(ShaderModo.Branca);
+      if (estadoTeclado.IsKeyPressed(Keys.D3)) SetModoShader(ShaderModo.Vermelha);
+      if (estadoTeclado.IsKeyPressed(Keys.D4)) SetModoShader(ShaderModo.Verde);
+      if (estadoTeclado.IsKeyPressed(Keys.D5)) SetModoShader(ShaderModo.Azul);
+      if (estadoTeclado.IsKeyPressed(Keys.D6)) SetModoShader(ShaderModo.Ciano);
+      if (estadoTeclado.IsKeyPressed(Keys.D7)) SetModoShader(ShaderModo.Magenta);
+      if (estadoTeclado.IsKeyPressed(Keys.D8)) SetModoShader(ShaderModo.Amarela);
 
           const float cameraSpeed = 1.5f;
       if (estadoTeclado.IsKeyDown(Keys.Z))
@@ -242,10 +348,6 @@ namespace gcgcg
         _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
       if (estadoTeclado.IsKeyDown(Keys.LeftShift))
         _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
-                                                                      // if (estadoTeclado.IsKeyDown(Keys.D9))
-                                                                      //   _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
-                                                                      // if (estadoTeclado.IsKeyDown(Keys.D0))
-                                                                      //   _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
       #endregion
 
       #region  Mouse
@@ -288,9 +390,7 @@ namespace gcgcg
       {
         Console.WriteLine("MouseState.IsButtonReleased(MouseButton.Right)");
       }
-
       #endregion
-
     }
 
     protected override void OnResize(ResizeEventArgs e)

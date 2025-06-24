@@ -81,6 +81,7 @@ namespace gcgcg
       base.PontosAdicionar(vertices[3]);
       base.PontosAdicionar(vertices[7]);
 
+
       // Face Frente (6 vértices)
       pontosTextura.Add(new Ponto4D(0, 0, 0)); // vértice 0
       pontosTextura.Add(new Ponto4D(1, 0, 0)); // vértice 1
@@ -130,10 +131,19 @@ namespace gcgcg
       pontosTextura.Add(new Ponto4D(0, 0, 0)); // vértice 4
       pontosTextura.Add(new Ponto4D(1, 0, 0)); // vértice 0
       pontosTextura.Add(new Ponto4D(1, 1, 0)); // vértice 3
-      
+
       pontosTextura.Add(new Ponto4D(0, 0, 0)); // vértice 4
       pontosTextura.Add(new Ponto4D(1, 1, 0)); // vértice 3
       pontosTextura.Add(new Ponto4D(0, 1, 0)); // vértice 7
+
+      // ---- Normais para cada face ----
+      for (int i = 0; i < 6; i++) pontosNormal.Add(new Ponto4D(0, 0, 1));    // Frente
+      for (int i = 0; i < 6; i++) pontosNormal.Add(new Ponto4D(0, 0, -1));   // Fundo
+      for (int i = 0; i < 6; i++) pontosNormal.Add(new Ponto4D(0, 1, 0));    // Cima
+      for (int i = 0; i < 6; i++) pontosNormal.Add(new Ponto4D(0, -1, 0));   // Baixo
+      for (int i = 0; i < 6; i++) pontosNormal.Add(new Ponto4D(1, 0, 0));    // Direita
+      for (int i = 0; i < 6; i++) pontosNormal.Add(new Ponto4D(-1, 0, 0));   // Esquerda
+
 
       Atualizar();
     }
